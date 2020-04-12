@@ -208,10 +208,19 @@ int adbd_main(int server_port) {
     adbd_cloexec_auth_socket();
 
 #if defined(__ANDROID__)
+<<<<<<< HEAD   (2debcf Disable adb auth if ro.adb.secure is false)
     // If ro.adb.secure is false, permit no-authentication.
     auth_required = android::base::GetBoolProperty("ro.adb.secure", false);
 #if defined(__ANDROID_RECOVERY__)
     auth_required |= android::base::GetBoolProperty("ro.adb.secure.recovery", true);
+=======
+    bool device_unlocked = android::base::GetProperty("ro.boot.verifiedbootstate", "") == "orange";
+    if (device_unlocked || __android_log_is_debuggable()) {
+        // If we're on userdebug/eng or the device is unlocked, permit no-authentication.
+        auth_required = android::base::GetBoolProperty("ro.adb.secure", false);
+#if defined(__ANDROID_RECOVERY__)
+        auth_required &= android::base::GetBoolProperty("ro.adb.secure.recovery", true);
+>>>>>>> CHANGE (18cd8c adb: Add ro.adb.secure.recovery handling)
 #endif
 #endif
 
