@@ -208,14 +208,11 @@ int adbd_main(int server_port) {
     adbd_cloexec_auth_socket();
 
 #if defined(__ANDROID__)
-    bool device_unlocked = android::base::GetProperty("ro.boot.verifiedbootstate", "") == "orange";
-    if (device_unlocked || __android_log_is_debuggable()) {
-        // If we're on userdebug/eng or the device is unlocked, permit no-authentication.
-        auth_required = android::base::GetBoolProperty("ro.adb.secure", false);
+    // If ro.adb.secure is false, permit no-authentication.
+    auth_required = android::base::GetBoolProperty("ro.adb.secure", false);
 #if defined(__ANDROID_RECOVERY__)
-        auth_required &= android::base::GetBoolProperty("ro.adb.secure.recovery", true);
+    auth_required |= android::base::GetBoolProperty("ro.adb.secure.recovery", true);
 #endif
-    }
 #endif
 
     // Our external storage path may be different than apps, since
